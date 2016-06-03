@@ -1,0 +1,4 @@
+two shift registers with inputs pin 5, 6.
+only one pin works (via print in arduino serial) regardless of disabling the other. (5 works 6 dead); verified by swapping two registers
+
+
