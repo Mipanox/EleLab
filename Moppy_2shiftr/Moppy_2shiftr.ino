@@ -70,6 +70,7 @@ void setup(){
 uint32_t last = 0;
 byte memory = 0;
 byte memor2 = 0;
+//#define floppy
 
 void loop(){
   //The first loop, reset all the drives, and wait 2 seconds...
@@ -79,45 +80,43 @@ void loop(){
     resetAll();
     delay(2000);
   }
-
-  digitalWrite(load,LOW);  delayMicroseconds(2);
-  digitalWrite(load,HIGH); delayMicroseconds(2);
-  digitalWrite(clock,HIGH);
-  digitalWrite(enable,LOW);
-  in_1 = ~shiftIn(data,clock,MSBFIRST) & 0B11111111;
-  in_2 = ~shiftIn(data,clock,MSBFIRST) & 0B11111111;
-  digitalWrite(enable,HIGH);
-  
   
   byte d_1 = 0; byte d_2 = 0;
   while (micros() - last < 50) // prevents instantaneous change not recorded by arduino
   {
-    d_1 |= in_1 & 0B11111111;
-    d_2 |= in_2 & 0B11111111;
+    digitalWrite(load,LOW);  delayMicroseconds(2);
+    digitalWrite(load,HIGH); delayMicroseconds(2);
+    digitalWrite(clock,HIGH);
+    digitalWrite(enable,LOW);
+    in_1 = ~shiftIn(data,clock,MSBFIRST) & 0B11111111;
+    in_2 = ~shiftIn(data,clock,MSBFIRST) & 0B11111111;
+    digitalWrite(enable,HIGH);
+    d_1 |= in_1;
+    d_2 |= in_2;
   }
 
-  #ifdef debugg
+  #ifdef debug
   for (int i=7; i>=0; i--){ Serial.print(bitRead(in_1,i)); }
   Serial.print(" ");
   for (int i=7; i>=0; i--){ Serial.print(bitRead(in_2,i)); }
   Serial.println(" "); Serial.println("---------");
   #endif
 
-  #ifdef debug
+  #ifdef debugg
   for (int i=7; i>=0; i--){ Serial.print(bitRead(d_1,i)); }
   Serial.print(" ");
   for (int i=7; i>=0; i--){ Serial.print(bitRead(d_2,i)); }
   Serial.println(" "); Serial.println("---------");
   #endif
 
-  
+  #ifndef floppy
   if( d_1 ^ memory || d_2 ^ memor2)
   {
     byte temp = d_1 ^ memory;
     byte tem2 = d_2 ^ memor2;
     if (d_1 > memory)
     {
-      for (byte j=0B000001; j<0B111111; j*=2)
+      for (byte j=0B00000001; j<0B11111111; j*=2)
       {
         if (temp & j) // if more than 1 keys pressed
         {
@@ -130,7 +129,7 @@ void loop(){
     }
     else if (d_2 > memor2)
     {
-      for (byte j=0B000001; j<0B111111; j*=2)
+      for (byte j=0B00000001; j<0B11111111; j*=2)
       {
         if (tem2 & j)
         {
@@ -156,7 +155,7 @@ void loop(){
   
   memory = d_1;
   memor2 = d_2;
-  //Serial.println(memory);
+  #endif
   last = micros();
 
 }
