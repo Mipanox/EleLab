@@ -2,35 +2,29 @@
 #define load 2
 #define clock 3
 #define data 5
-#define data2 6
 
 #define debug
 
 void setup()
 {
-pinMode(enable,OUTPUT);
-pinMode(load,OUTPUT);
-pinMode(clock,OUTPUT);
-pinMode(data,INPUT);
-pinMode(data2,INPUT);
-digitalWrite(load,HIGH);
-digitalWrite(enable,HIGH);
-Serial.begin(9600);
+  pinMode(enable,OUTPUT);
+  pinMode(load,OUTPUT);
+  pinMode(clock,OUTPUT);
+  pinMode(data,INPUT);
+  digitalWrite(load,HIGH);
+  digitalWrite(enable,HIGH);
+  Serial.begin(9600);
 }
  
 void loop()
 {
-digitalWrite(load,LOW);
-delayMicroseconds(2);
-//delay(50);
-digitalWrite(load,HIGH);
-delayMicroseconds(2);
-//delay(50);
-digitalWrite(clock,HIGH);
-digitalWrite(enable,LOW);
-byte incoming=shiftIn(data,clock,MSBFIRST);
-byte incomin2=shiftIn(data2,clock,MSBFIRST);
-digitalWrite(enable,HIGH);
+  digitalWrite(load,LOW);  delayMicroseconds(2);
+  digitalWrite(load,HIGH); delayMicroseconds(2);
+  digitalWrite(clock,HIGH);
+  digitalWrite(enable,LOW);
+  byte incoming=shiftIn(data,clock,MSBFIRST);
+  byte incomin2=shiftIn(data,clock,MSBFIRST);
+  digitalWrite(enable,HIGH);
 
   #ifdef debug
   Serial.print(incoming,BIN); Serial.print(" ");

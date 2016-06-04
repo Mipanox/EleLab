@@ -1,0 +1,2 @@
+0604
+- discard switch-resistance system due to unstable output voltage (not 'zero')

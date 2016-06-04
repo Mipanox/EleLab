@@ -70,9 +70,10 @@ void setup(){
 uint32_t last = 0;
 byte memory = 0;
 byte memor2 = 0;
-//#define floppy
+#define floppy
 
-void loop(){
+void loop()
+{
   //The first loop, reset all the drives, and wait 2 seconds...
   if (firstRun)
   {
@@ -96,42 +97,40 @@ void loop(){
   }
 
   #ifdef debug
-  for (int i=7; i>=0; i--){ Serial.print(bitRead(in_1,i)); }
-  Serial.print(" ");
-  for (int i=7; i>=0; i--){ Serial.print(bitRead(in_2,i)); }
-  Serial.println(" "); Serial.println("---------");
+    for (int i=7; i>=0; i--){ Serial.print(bitRead(in_1,i)); }
+    Serial.print(" ");
+    for (int i=7; i>=0; i--){ Serial.print(bitRead(in_2,i)); }
+    Serial.println(" "); Serial.println("---------");
   #endif
 
-  #ifdef debugg
-  for (int i=7; i>=0; i--){ Serial.print(bitRead(d_1,i)); }
-  Serial.print(" ");
-  for (int i=7; i>=0; i--){ Serial.print(bitRead(d_2,i)); }
-  Serial.println(" "); Serial.println("---------");
+  #ifdef debug
+    for (int i=7; i>=0; i--){ Serial.print(bitRead(d_1,i)); }
+    Serial.print(" ");
+    for (int i=7; i>=0; i--){ Serial.print(bitRead(d_2,i)); }
+    Serial.println(" "); Serial.println("---------");
   #endif
 
-  #ifndef floppy
   if( d_1 ^ memory || d_2 ^ memor2)
   {
-    byte temp = d_1 ^ memory;
+    byte temp = d_1 ^ memory; Serial.println(temp);
     byte tem2 = d_2 ^ memor2;
     if (d_1 > memory)
     {
-      for (byte j=0B00000001; j<0B11111111; j*=2)
-      {
-        if (temp & j) // if more than 1 keys pressed
+      for (int j=1; j<255; j*=2) // do NOT use 'byte' ! otherwise j will return to 0 when > 256 !->infinite loop!
+      { byte jj = j;
+        if (temp & jj) // if more than 1 keys pressed
         {
           if (currentPeriod[8]==0) { currentPeriod[8] = per[j]; }
           else if (currentPeriod[10]==0) { currentPeriod[10] = per[j]; }
           else if (currentPeriod[12]==0) { currentPeriod[12] = per[j]; }
         }
       }
-      
-    }
+    } 
     else if (d_2 > memor2)
     {
-      for (byte j=0B00000001; j<0B11111111; j*=2)
-      {
-        if (tem2 & j)
+      for (int j=1; j<255; j*=2)
+      { byte jj = j;
+        if (tem2 & jj)
         {
           if (currentPeriod[8]==0) { currentPeriod[8] = pe2[tem2]; }
           else if (currentPeriod[10]==0) { currentPeriod[10] = pe2[tem2]; }
@@ -147,29 +146,19 @@ void loop(){
     }
     else
     {
-      if (currentPeriod[8] ==pe2[tem2]) { currentPeriod[8]  = 0 ;}
+      if (currentPeriod[8]==pe2[tem2]) { currentPeriod[8]  = 0 ;}
       else if (currentPeriod[10]==pe2[tem2]) { currentPeriod[10] = 0 ;}
       else if (currentPeriod[12]==pe2[tem2]) { currentPeriod[12] = 0 ;}
     }
   }
-  
   memory = d_1;
   memor2 = d_2;
-  #endif
   last = micros();
 
 }
 
-
-/*
-Called by the timer inturrupt at the specified resolution.
-*/
 void tick()
 {
-  /*
-If there is a period set for control pin 2, count the number of
-ticks that pass, and toggle the pin if the current period is reached.
-*/
   if (currentPeriod[2]>0){
     currentTick[2]++;
     if (currentTick[2] >= currentPeriod[2]){
