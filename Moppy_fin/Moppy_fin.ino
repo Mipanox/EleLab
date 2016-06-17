@@ -103,13 +103,13 @@ void loop()
     for (int i=7; i>=0; i--){ Serial.print(bitRead(d_5,i)); }
     Serial.println(" "); Serial.println("---------");
   #endif
-
-  if( d_1 == d_2 == d_3 == d_4 == d_5 == 0) // reset (no sound) when all keys released
+  
+  if( d_1==0 && d_2==0 && d_3==0 && d_4==0 && d_5==0) // reset (no sound) when all keys released
   {
     currentPeriod[8]=0; currentPeriod[10]=0; currentPeriod[12]=0;
   }
   
-  if( d_1 ^ memory || d_2 ^ memor2 || d_3 ^ memor3 || d_4 ^ memor4 || d_5 ^ memor5)
+  else if( d_1 ^ memory || d_2 ^ memor2 || d_3 ^ memor3 || d_4 ^ memor4 || d_5 ^ memor5)
   {
     byte temp = d_1 ^ memory; 
     byte tem2 = d_2 ^ memor2;
