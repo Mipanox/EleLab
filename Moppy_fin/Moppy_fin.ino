@@ -22,13 +22,7 @@ float p = 6300;
 
 #define debugg
 
-byte in_1 = 0;  // 01001000 # for debugging
-byte in_2 = 0;  // 10011111
-byte in_3 = 0;
-byte in_4 = 0;
-byte in_5 = 0;
-
-float per[129]={}; float pe2[129]={}; float pe3[129]={}; float pe4[129]={}; float pe5[129]={};
+int per[129]={}; int pe2[129]={}; int pe3[129]={}; int pe4[129]={}; int pe5[129]={};
 
 //Setup pins (Even-odd pairs for step control and direction
 void setup(){
@@ -49,21 +43,21 @@ void setup(){
   Timer1.initialize(RESOLUTION); // Set up a timer at the defined resolution
   Timer1.attachInterrupt(tick); // Attach the tick function
 
-  // C1
-  per[1]  = p/32.70; per[2]  = p/34.65; per[4]  = p/36.71; per[8]   = p/38.89; // D#1
-  per[16] = p/41.20; per[32] = p/43.65; per[64] = p/46.25; per[128] = p/49.00; // G1
-  // G#1
-  pe2[1]  = p/51.91; pe2[2]  = p/55.00; pe2[4]  = p/58.27; pe2[8]   = p/61.74; // B1
-  pe2[16] = p/65.41; pe2[32] = p/69.30; pe2[64] = p/73.42; pe2[128] = p/77.78; // D#2
-  // E2
-  pe3[1]  = p/82.41 ; pe3[2]  = p/87.31 ; pe3[4]  = p/92.50 ; pe3[8]   = p/98.00;  // G2
-  pe3[16] = p/103.83; pe3[32] = p/111.00; pe3[64] = p/116.54; pe3[128] = p/123.47; // B2
-  // C3
-  pe4[1]  = p/130.81; pe4[2]  = p/138.59; pe4[4]  = p/146.83; pe4[8]   = p/155.56; // D#3
-  pe4[16] = p/164.81; pe4[32] = p/174.61; pe4[64] = p/185.00; pe4[128] = p/196.00; // G3
-  // G#3
-  pe5[1]  = p/207.65; pe5[2]  = p/220.00; pe5[4]  = p/233.08; pe5[8]   = p/246.94; // B3
-  pe5[16] = p/261.63; pe5[32] = p/277.18; pe5[64] = p/293.66; pe5[128] = p/311.13; // D#4
+  // C1 white left
+  per[1]  = p/32.70; per[2]  = p/36.71; per[4]  = p/41.20; per[8]   = p/43.65; 
+  per[16] = p/65.41; per[32] = p/61.74; per[64] = p/55.00; per[128] = p/49.00; 
+  // C#1 black left
+  pe2[1]  = p/34.65; pe2[2]  = p/38.89; pe2[4]   = p/46.25; pe2[8]   = p/51.91;
+  pe2[32] = p/69.30; pe2[64] = p/77.78; pe2[128] = p/58.27; 
+  // D2 white middle
+  pe3[1]  = p/73.42 ; pe3[2]  = p/87.31 ; pe3[4]  = p/82.41 ; pe3[8]   = p/98.00;
+  pe3[16] = p/130.81; pe3[32] = p/146.83; pe3[64] = p/123.47; pe3[128] = p/110.00;
+  // #F2 black right
+  pe4[1]  = p/92.50;  pe4[2]  = p/103.83; pe4[4]  = p/116.54; pe4[8]   = p/138.59;
+  pe4[16] = p/233.08; pe4[32] = p/207.65; pe4[64] = p/185.00; pe4[128] = p/155.56;
+  // E3 white right
+  pe5[1]  = p/164.81; pe5[2]   = p/174.61; pe5[4]  = p/196.00; pe5[8]   = p/246.94;
+  pe5[64] = p/261.63; pe5[128] = p/222.00;
   Serial.begin(9600);
 }
 
@@ -89,27 +83,15 @@ void loop()
     digitalWrite(load,HIGH); delayMicroseconds(2);
     digitalWrite(clock,HIGH);
     digitalWrite(enable,LOW);
-    in_1 = ~shiftIn(data,clock,MSBFIRST) & 0B11111111;
-    in_2 = ~shiftIn(data,clock,MSBFIRST) & 0B11111111;
-    in_3 = ~shiftIn(data,clock,MSBFIRST) & 0B11111111;
-    in_4 = ~shiftIn(data,clock,MSBFIRST) & 0B11111111;
-    in_5 = ~shiftIn(data,clock,MSBFIRST) & 0B11111111;
+    d_5 |= ~shiftIn(data,clock,MSBFIRST) & 0B11111111;
+    d_4 |= ~shiftIn(data,clock,MSBFIRST) & 0B11111111;
+    d_3 |= ~shiftIn(data,clock,MSBFIRST) & 0B11111111;
+    d_2 |= ~shiftIn(data,clock,MSBFIRST) & 0B11111111;
+    d_1 |= ~shiftIn(data,clock,MSBFIRST) & 0B11111111;
     digitalWrite(enable,HIGH);
-    d_1 |= in_1;
-    d_2 |= in_2;
-    d_3 |= in_3;
-    d_4 |= in_4;
-    d_5 |= in_5;
   }
 
   #ifdef debug
-    for (int i=7; i>=0; i--){ Serial.print(bitRead(in_1,i)); }
-    Serial.print(" ");
-    for (int i=7; i>=0; i--){ Serial.print(bitRead(in_2,i)); }
-    Serial.println(" "); Serial.println("---------");
-  #endif
-
-  #ifdef debugg
     for (int i=7; i>=0; i--){ Serial.print(bitRead(d_1,i)); }
     Serial.print(" ");
     for (int i=7; i>=0; i--){ Serial.print(bitRead(d_2,i)); }
@@ -122,25 +104,30 @@ void loop()
     Serial.println(" "); Serial.println("---------");
   #endif
 
+  if( d_1 == d_2 == d_3 == d_4 == d_5 == 0) // reset (no sound) when all keys released
+  {
+    currentPeriod[8]=0; currentPeriod[10]=0; currentPeriod[12]=0;
+  }
+  
   if( d_1 ^ memory || d_2 ^ memor2 || d_3 ^ memor3 || d_4 ^ memor4 || d_5 ^ memor5)
   {
     byte temp = d_1 ^ memory; 
     byte tem2 = d_2 ^ memor2;
-    byte tem3 = d_3 ^ memor2;
-    byte tem4 = d_4 ^ memor2;
-    byte tem5 = d_5 ^ memor2;
-
+    byte tem3 = d_3 ^ memor3;
+    byte tem4 = d_4 ^ memor4;
+    byte tem5 = d_5 ^ memor5;
+    
     // key pressed
     if (d_1 > memory)
     {
       for (int j=1; j<255; j*=2) // do NOT use 'byte' ! otherwise j will return to 0 when > 256 !->infinite loop!
       { byte jj = j;
         if (temp & jj) // if more than 1 keys pressed
-        {
+        { // Serial.print("here");
           if (currentPeriod[8]==0) { currentPeriod[8] = per[j]; }
           else if (currentPeriod[10]==0) { currentPeriod[10] = per[j]; }
           else if (currentPeriod[12]==0) { currentPeriod[12] = per[j]; }
-        }
+        } // Serial.print(currentPeriod[8]); Serial.print(' '); Serial.println(currentPeriod[10]);
       }
     } 
     else if (d_2 > memor2)
@@ -191,7 +178,7 @@ void loop()
         }
       }
     }
-
+  
     // key released
     
     else if (d_1 < memory)
@@ -223,11 +210,10 @@ void loop()
       if (currentPeriod[8]==pe5[tem5]) { currentPeriod[8]  = 0 ;}
       else if (currentPeriod[10]==pe5[tem5]) { currentPeriod[10] = 0 ;}
       else if (currentPeriod[12]==pe5[tem5]) { currentPeriod[12] = 0 ;}
-    }
+    } Serial.print(currentPeriod[8]); Serial.print(' '); Serial.println(currentPeriod[10]);
   }
   memory = d_1; memor2 = d_2; memor3 = d_3; memor4 = d_4; memor5 = d_5;
   last = micros();
-
 }
 
 void tick()
